@@ -1232,7 +1232,7 @@ buttonpress(XEvent *e)
 		/* horizontal list: (ctrl)left-click on item */
 		for (item = curr; item != next; item = item->right) {
 			x += w;
-			w = MIN(TEXTW(item->text), mw - x - TEXTW(symbol_2));
+			w = MIN(TEXTW(item->text), mw - x - TEXTW(symbol_2) - TEXTW(numbers));
 			if (ev->x >= x && ev->x <= x + w) {
 				puts(item->text);
 				if (!(ev->state & ControlMask))
@@ -1247,7 +1247,7 @@ buttonpress(XEvent *e)
 		}
 		/* left-click on right arrow */
 		w = TEXTW(symbol_2);
-		x = mw - w;
+		x = mw - w - TEXTW(numbers);
 		if (next && ev->x >= x && ev->x <= x + w) {
 			sel = curr = next;
 			calcoffsets();
