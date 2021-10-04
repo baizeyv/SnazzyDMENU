@@ -9,16 +9,18 @@ static int centered = 1;                    /* -c option; centers dmenu on scree
 static int min_width = 1000;                    /* minimum width when centered */
 static const unsigned int alpha = 0xb0;
 /* -fn option overrides fonts[0]; default X11 font or font set */
-static const char *fonts[] = {
-    "monospace:size=10",
-    "FiraCode Nerd Font:size=12",
+static char font1[] = "monospace:size=10";
+static char font2[] = "FiraCode Nerd Font:size=12";
+static char *fonts[] = {
+    font1,
+    font2,
 };
-static const char *prompt      = NULL;      /* -p  option; prompt to the left of input field */
-static const char *dynamic     = NULL;      /* -dy option; dynamic command to run on input change */
-static const char *symbol_1 = "<<";
-static const char *symbol_2 = ">>";
+static char *prompt      = NULL;      /* -p  option; prompt to the left of input field */
+static char *dynamic     = NULL;      /* -dy option; dynamic command to run on input change */
+static char *symbol_1 = "<<";
+static char *symbol_2 = ">>";
 
-static const char *colors[SchemeLast][10] = {
+static char *colors[SchemeLast][10] = {
     /*     fg         bg       */
     [SchemeNorm] = { "#bbbbbb", "#222222", "#222222" },
     [SchemeSel] = { "#eeeeee", "#005577", "#005577" },
@@ -33,7 +35,7 @@ static const char *colors[SchemeLast][10] = {
 	[SchemeSelHighlight] = { "#ffc978", "#005577", "#005577" },
 	[SchemeNormHighlight] = { "#ffc978", "#222222", "#222222" },
 };
-static const unsigned int alphas[SchemeLast][2] = {
+static unsigned int alphas[SchemeLast][2] = {
 	[SchemeNorm] = { OPAQUE, alpha },
 	[SchemeSel] = { OPAQUE, alpha },
 	[SchemeOut] = { OPAQUE, alpha },
@@ -55,10 +57,10 @@ static int animated = 0;
  * Characters not considered part of a word while deleting words
  * for example: " /?\"&[]"
  */
-static const char worddelimiters[] = " ";
+static char worddelimiters[] = " ";
 
 /* Size of the window border */
-static const unsigned int border_width = 5;
+static unsigned int border_width = 5;
 
 /*
  * Use prefix matching by default; can be inverted with the -x flag.
@@ -67,3 +69,34 @@ static int use_prefix = 1;
 
 /* -n option; preselected item starting from 0 */
 static unsigned int preselected = 1;
+
+/*
+ * Xresources preferences to load at startup
+ */
+ResourcePref resources[] = {
+	{ "font1",        STRING, &font1 },
+	{ "font2",        STRING, &font2 },
+	{ "prompt",      STRING, &prompt },
+	{ "colorprompt", INTEGER, &colorprompt },
+	{ "incremental", INTEGER, &incremental },
+	{ "fuzzy", INTEGER, &fuzzy },
+	{ "centered", INTEGER, &centered },
+	{ "min_width", INTEGER, &min_width },
+	{ "prompt",        STRING, &prompt },
+	{ "dynamic",        STRING, &dynamic },
+	{ "symbol_1",        STRING, &symbol_1 },
+	{ "symbol_2",        STRING, &symbol_2 },
+	{ "lines", INTEGER, &lines },
+	{ "columns", INTEGER, &columns },
+	{ "maxhist", INTEGER, &maxhist },
+	{ "histnodup", INTEGER, &histnodup },
+	{ "lineheight", INTEGER, &lineheight },
+	{ "min_lineheight", INTEGER, &min_lineheight },
+	{ "sely", INTEGER, &sely },
+	{ "commented", INTEGER, &commented },
+	{ "animated", INTEGER, &animated },
+	{ "worddelimiters",        STRING, &worddelimiters },
+	{ "border_width", INTEGER, &border_width },
+	{ "use_prefix", INTEGER, &use_prefix },
+	{ "preselected", INTEGER, &preselected },
+};
