@@ -62,3 +62,6 @@ static const unsigned int border_width = 5;
  * Use prefix matching by default; can be inverted with the -x flag.
  */
 static int use_prefix = 1;
+
+/* -n option; preselected item starting from 0 */
+static unsigned int preselected = 1;
