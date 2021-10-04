@@ -56,6 +56,7 @@ struct item {
 	int out;
 	double distance;
 	json_t *json;
+	int index;
 };
 
 static char numbers[NUMBERSBUFSIZE] = "";
@@ -74,6 +75,7 @@ static struct item *items = NULL, *backup_items;
 static struct item *matches, *matchend;
 static struct item *prev, *curr, *next, *sel;
 static int mon = -1, screen;
+static int print_index = 0;
 
 static Atom clip, utf8;
 static Display *dpy;
@@ -1000,6 +1002,10 @@ insert:
 		break;
 	case XK_Return:
 	case XK_KP_Enter:
+		if (print_index)
+			printf("%d\n", (sel && !(ev->state & ShiftMask)) ? sel->index : -1);
+		else
+			puts((sel && !(ev->state & ShiftMask)) ? sel->text : text);
 		if (sel && sel->json) {
 			if (json_is_object(sel->json)) {
 				listjson(sel->json);
@@ -1321,6 +1327,7 @@ readstdin(FILE* stream)
 			die("cannot strdup %u bytes:", strlen(buf) + 1);
 		item->json = NULL;
 		item->out = 0;
+		items[i].index = i;
 		drw_font_getexts(drw->fonts, buf, strlen(buf), &tmpmax, NULL);
 		if (tmpmax > inputw) {
 			inputw = tmpmax;
@@ -1547,6 +1554,8 @@ main(int argc, char *argv[])
 			passwd = 1;
 		else if (!strcmp(argv[i], "-x"))   /* invert use_prefix */
 			use_prefix = !use_prefix;
+		else if (!strcmp(argv[i], "-ix"))  /* adds ability to return index in list */
+			print_index = 1;
 		else if (i + 1 == argc)
 			usage();
 		/* these options take one argument */
