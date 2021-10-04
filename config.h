@@ -26,6 +26,8 @@ static const char *colors[SchemeLast][10] = {
     [SchemeYellow] = {"#ffffff", "#e0c452", "#bca33f"},
     [SchemeBlue] = {"#ffffff", "#5280e0", "#3a62b3"},
     [SchemePurple] = {"#ffffff", "#9952e0", "#7439b0"},
+	[SchemeSelHighlight] = { "#ffc978", "#005577", "#005577" },
+	[SchemeNormHighlight] = { "#ffc978", "#222222", "#222222" },
 };
 static const unsigned int alphas[SchemeLast][2] = {
 	[SchemeNorm] = { OPAQUE, alpha },
