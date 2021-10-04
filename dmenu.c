@@ -52,6 +52,7 @@ enum {
 
 struct item {
 	char *text;
+	char *text_output;
 	struct item *left, *right;
 	int out;
 	double distance;
@@ -62,6 +63,9 @@ struct item {
 static char numbers[NUMBERSBUFSIZE] = "";
 static char text[BUFSIZ] = "";
 static char *embed;
+static char separator;
+static int separator_greedy;
+static int separator_reverse;
 static int bh, mw, mh;
 static int dmx = 0; /* put dmenu at this x offset */
 static int dmy = 0; /* put dmenu at this y offset (measured from the bottom if topbar is 0) */
@@ -1017,7 +1021,7 @@ insert:
 						puts(json_string_value(sel->json));
 					}
 				} else {
-					puts((sel && (ev->state & ShiftMask)) ? sel->text : text);
+					puts((sel && (ev->state & ShiftMask)) ? sel->text_output : text);
 				}
 			} else {
 				if (sel && sel->json) {
@@ -1031,7 +1035,7 @@ insert:
 						puts(json_string_value(sel->json));
 					}
 				} else {
-					puts((sel && (ev->state & ShiftMask)) ? sel->text : text);
+					puts((sel && (ev->state & ShiftMask)) ? sel->text_output : text);
 				}
 			}
 		} else {
@@ -1049,7 +1053,7 @@ insert:
 						puts(json_string_value(sel->json));
 					}
 				} else {
-					puts((sel && !(ev->state & ShiftMask)) ? sel->text : text);
+					puts((sel && !(ev->state & ShiftMask)) ? sel->text_output : text);
 				}
 			}
 		}
@@ -1359,6 +1363,18 @@ readstdin(FILE* stream)
 			*p = '\0';
 		if (!(item->text = strdup(buf)))
 			die("cannot strdup %u bytes:", strlen(buf) + 1);
+		if (separator && (p = (separator_greedy) ?
+			strrchr(items[i].text, separator) : strchr(items[i].text, separator))) {
+			*p = '\0';
+			items[i].text_output = ++p;
+		} else {
+			items[i].text_output = items[i].text;
+		}
+		if (separator_reverse) {
+			char *tmp = items[i].text;
+			items[i].text = items[i].text_output;
+			items[i].text_output = tmp;
+		}
 		item->json = NULL;
 		item->out = 0;
 		items[i].index = i;
@@ -1553,9 +1569,9 @@ setup(void)
 static void
 usage(void)
 {
-	fputs("usage: dmenu [-bfivPx] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
+	fputs("usage: dmenu [-bfinvPx] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
 	      "             [-j json-file] [-nhb color] [-nhf color] [-shb color] [-shf color] [-r] [-it text] [-H histfile] [-n number]\n"
-	      "             [-x xoffset] [-y yoffset] [-z width]\n"
+	      "             [-x xoffset] [-y yoffset] [-z width][-d separator] [-D separator]\n"
 	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-w windowid]\n" "[-dy command]\n", stderr);
 	exit(1);
 }
@@ -1639,6 +1655,11 @@ main(int argc, char *argv[])
 			colors[SchemeSelHighlight][ColFg] = argv[++i];
 		else if (!strcmp(argv[i], "-w"))   /* embedding window id */
 			embed = argv[++i];
+		else if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "-D")) { /* field separator */
+			separator_reverse = (*(argv[i+1]+1) == '|');
+			separator_greedy = !strcmp(argv[i], "-D");
+			separator = *argv[++i];
+		}
 		else if (!strcmp(argv[i], "-n"))   /* preselected item */
 			preselected = atoi(argv[++i]);
 		else if (!strcmp(argv[i], "-it")) {   /* embedding window id */
