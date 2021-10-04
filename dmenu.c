@@ -76,6 +76,7 @@ static struct item *matches, *matchend;
 static struct item *prev, *curr, *next, *sel;
 static int mon = -1, screen;
 static int print_index = 0;
+static int use_text_input = 0;
 
 static Atom clip, utf8;
 static Display *dpy;
@@ -1002,22 +1003,55 @@ insert:
 		break;
 	case XK_Return:
 	case XK_KP_Enter:
-		if (print_index)
-			printf("%d\n", (sel && !(ev->state & ShiftMask)) ? sel->index : -1);
-		else
-			puts((sel && !(ev->state & ShiftMask)) ? sel->text : text);
-		if (sel && sel->json) {
-			if (json_is_object(sel->json)) {
-				listjson(sel->json);
-				text[0] = '\0';
-				match();
-				drawmenu();
-				break;
+		if (use_text_input) {
+			if (print_index) {
+				printf("%d\n", (sel && !(ev->state & ShiftMask)) ? sel->index : -1);
+				if (sel && sel->json) {
+					if (json_is_object(sel->json)) {
+						listjson(sel->json);
+						text[0] = '\0';
+						match();
+						drawmenu();
+						break;
+					} else {
+						puts(json_string_value(sel->json));
+					}
+				} else {
+					puts((sel && (ev->state & ShiftMask)) ? sel->text : text);
+				}
 			} else {
-				puts(json_string_value(sel->json));
+				if (sel && sel->json) {
+					if (json_is_object(sel->json)) {
+						listjson(sel->json);
+						text[0] = '\0';
+						match();
+						drawmenu();
+						break;
+					} else {
+						puts(json_string_value(sel->json));
+					}
+				} else {
+					puts((sel && (ev->state & ShiftMask)) ? sel->text : text);
+				}
 			}
 		} else {
-			puts((sel && !(ev->state & ShiftMask)) ? sel->text : text);
+			if (print_index) {
+				printf("%d\n", (sel && !(ev->state & ShiftMask)) ? sel->index : -1);
+			} else {
+				if (sel && sel->json) {
+					if (json_is_object(sel->json)) {
+						listjson(sel->json);
+						text[0] = '\0';
+						match();
+						drawmenu();
+						break;
+					} else {
+						puts(json_string_value(sel->json));
+					}
+				} else {
+					puts((sel && !(ev->state & ShiftMask)) ? sel->text : text);
+				}
+			}
 		}
 		if (!(ev->state & ControlMask)) {
 			savehistory((sel && !(ev->state & ShiftMask))
@@ -1556,6 +1590,8 @@ main(int argc, char *argv[])
 			use_prefix = !use_prefix;
 		else if (!strcmp(argv[i], "-ix"))  /* adds ability to return index in list */
 			print_index = 1;
+		else if (!strcmp(argv[i], "-t")) /* favors text input over selection */
+			use_text_input = 1;
 		else if (i + 1 == argc)
 			usage();
 		/* these options take one argument */
